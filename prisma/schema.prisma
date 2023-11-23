@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+// url,
+// wsdl,
+// endpoint,
+// description
+// country,
+// serviceType,
+// serviceName,
+// operations,
+// version,
+// serviceId,
+
+model proxyServices{
+  serviceName String @id @db.VarChar(100)
+  description String? @db.VarChar(10000)
+  country String? @db.VarChar(50)
+  serviceType String? @db.VarChar(50)
+}
+
