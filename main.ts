@@ -206,6 +206,7 @@ function getServiceVersion(filePath: string) {
 
 function getServiceId(service: string, proxyContent: string) {
   const SERVICE_ID_SEARCH_ARG = 'serviceId">';
+      const QUOTE_LENGTH = '"'.length;
   if (proxyContent.includes(SERVICE_ID_SEARCH_ARG)) {
     const serviceIdParamIndex = proxyContent.match(SERVICE_ID_SEARCH_ARG)!
       .index!;
@@ -220,7 +221,7 @@ function getServiceId(service: string, proxyContent: string) {
     // console.log({ serviceIdSlice });
 
     const nextTag = serviceIdSlice.match("<")?.index!;
-    let serviceId = serviceIdSlice.substring(0, nextTag - '"'.length);
+    let serviceId = serviceIdSlice.substring(0, nextTag - QUOTE_LENGTH);
 
     if (serviceId.startsWith("A")) {
       const XQUERY_SEARCH_ARG = "xqueryText";
@@ -228,10 +229,11 @@ function getServiceId(service: string, proxyContent: string) {
       const xquerySlice = serviceIdSlice.substring(
         xqueryTextIndex + XQUERY_SEARCH_ARG.length
       );
-      const closingTagIndex = xquerySlice.match("<")?.index!;
+	  const openingTag = xquerySlice.match(">")!.index!
+      const closingTagIndex = xquerySlice.match("<")!.index!;
       serviceId = xquerySlice.substring(
-        0 + QUOTE_AND_TAG_LENGTH,
-        closingTagIndex
+        openingTag + QUOTE_AND_TAG_LENGTH,
+        closingTagIndex-QUOTE_LENGTH
       );
       return serviceId;
     }
