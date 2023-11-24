@@ -78,6 +78,9 @@ const main = async () => {
         const openingTag = endpointSlice.match(">")!.index!;
         const nextClosingTag = endpointSlice.match("<")?.index;
         endpoint = endpointSlice.substring(openingTag + 1, nextClosingTag);
+        if (!endpoint.trim()) {
+          endpoint = "N/A";
+        }
         if (endpoint.startsWith("'")) {
           endpoint = "N/A";
         }
@@ -205,17 +208,23 @@ function getServiceVersion(filePath: string) {
 }
 
 function getServiceId(service: string, proxyContent: string) {
-  const SERVICE_ID_SEARCH_ARG = 'serviceId">';
-      const QUOTE_LENGTH = '"'.length;
+  const SERVICE_ID_SEARCH_ARG = 'serviceId"';
+  const QUOTE_LENGTH = '"'.length;
+  const TAG_LENGTH = ">".length;
+  const QUOTE_AND_TAG_LENGTH = '>"'.length;
   if (proxyContent.includes(SERVICE_ID_SEARCH_ARG)) {
     const serviceIdParamIndex = proxyContent.match(SERVICE_ID_SEARCH_ARG)!
       .index!;
+
     const serviceIdParamSlice = proxyContent.substring(
       serviceIdParamIndex + SERVICE_ID_SEARCH_ARG.length
     );
-    const nearestTag = serviceIdParamSlice.match(">")?.index!;
-    const QUOTE_AND_TAG_LENGTH = '>"'.length;
-    const serviceIdSlice = serviceIdParamSlice.substring(
+    const serviceIdTagIndex = serviceIdParamSlice.match(">")!.index!;
+    const serviceIdTagSlice = serviceIdParamSlice.substring(
+      serviceIdTagIndex + TAG_LENGTH
+    );
+    const nearestTag = serviceIdTagSlice.match(">")?.index!;
+    const serviceIdSlice = serviceIdTagSlice.substring(
       nearestTag + QUOTE_AND_TAG_LENGTH
     );
     // console.log({ serviceIdSlice });
@@ -229,11 +238,11 @@ function getServiceId(service: string, proxyContent: string) {
       const xquerySlice = serviceIdSlice.substring(
         xqueryTextIndex + XQUERY_SEARCH_ARG.length
       );
-	  const openingTag = xquerySlice.match(">")!.index!
+      const openingTag = xquerySlice.match(">")!.index!;
       const closingTagIndex = xquerySlice.match("<")!.index!;
       serviceId = xquerySlice.substring(
         openingTag + QUOTE_AND_TAG_LENGTH,
-        closingTagIndex-QUOTE_LENGTH
+        closingTagIndex - QUOTE_LENGTH
       );
       return serviceId;
     }
